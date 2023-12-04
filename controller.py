@@ -1,4 +1,3 @@
-import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.io import wavfile as sio
@@ -41,7 +40,6 @@ class Controller:
         print(data[:, 1])
 
         n = 10      #Number of chunks to break the waveform into
-
         for x in range(0, n):
             #Helps Break the waveform data into chuncks
             start = math.ceil(data.shape[0] * x/n)
