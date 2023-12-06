@@ -53,12 +53,31 @@ class Controller:
         plt.ylabel("Amplitude")
         plt.show()
 
+    def ShowFrequency(self):
+        a1 = plt.subplot(211)
+        a1.set_title("Left Channel")
+        spectrum1, freqs1, t1, im1 = plt.specgram(self._data[:, 0], Fs= self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
+        cbar1 = plt.colorbar(im1)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Frequency (Hz)')
+        cbar1.set_label('Intensity (dB)')
+
+        a2 = plt.subplot(212)
+        a2.set_title("Right Channel")
+        spectrum2, freqs2, t2, im2 = plt.specgram(self._data[:, 1], Fs= self._samplerate, NFFT=1024, cmap=plt.get_cmap('viridis'))
+        cbar2 = plt.colorbar(im2)
+        plt.xlabel('Time (s)')
+        plt.ylabel('Frequency (Hz)')
+        cbar2.set_label('Intensity (dB)')
+
+        plt.show()
 
 
 def main():
     C = Controller()
     C.LoadFile("Sample2.wav")
     C.ShowWav(5, 10)
+    C.ShowFrequency()
 
 
 
