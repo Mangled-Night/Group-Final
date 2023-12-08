@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile as sio
 from scipy.io import wavfile
 from pydub import AudioSegment
+from model import Model
 
 class AudioController:
     def __init__(self, model):
@@ -22,15 +23,14 @@ class AudioController:
     def rt60(self, freqs, spectrum, t, user_frequencies):
         self._model.rt60(freqs, spectrum, t, user_frequencies)
 
-    def main(self):
-        audio_controller = AudioController()
-        #audio_controller.load_file("PolyHallClap_10mM.WAV")
-        audio_controller.frequency([1000, 2000, 50000])
+def main():
+    audio_controller = AudioController()
+    audio_controller.load_file("PolyHallClap_10mM.WAV")
 
     if __name__ == "__main__":
         main()
 
-
+main()
 
 
 
