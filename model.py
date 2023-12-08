@@ -93,23 +93,23 @@ class Controller:
 
 
     def RT60(self, freqs, spectrum, t, user_frequencies):
-        ratio = spectrum.shape[0] / freqs.max()
+        ratio = spectrum.shape[0] / freqs.max()     #Ratio to convert between desired frequency and index for frequency
         def HeighestFrequency():
             _max = len(freqs)
             heighest_freq = None
             heighest_plottable_freq = None
             for x in range(1, _max):
                 _data = 10 * np.log10(spectrum[_max - x])
-                idx_last_pos = 0
+                idx_last_pos = 0                    #Starts at the heighest frequency and converts it into DB
                 for y in range(len(_data)):
-                    if (_data[y] > 0):
+                    if (_data[y] > 0):              #Checks if any of the coverted DB is positive, if so finds find the last positive index
                         idx_last_pos = y
 
                 if (len(_data[:idx_last_pos + 1]) > 1 and heighest_freq == None):
-                    heighest_freq = (_max - x) / ratio
+                    heighest_freq = (_max - x) / ratio                              #Heighest Frequency has at least one positive data point
 
                 if (len(_data[:idx_last_pos + 1]) >= 11):
-                    heighest_plottable_freq = (_max - x) / ratio
+                    heighest_plottable_freq = (_max - x) / ratio                    #Heightest plottable has at least 10 data points
                     break
 
             return heighest_freq, heighest_plottable_freq
@@ -121,44 +121,26 @@ class Controller:
 
         default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
 
-        for x in user_frequencies:
-            if (x > freqs[len(freqs) - 1]):
-                print(f'Outside Max Frequency Recoreded. Cannot Plot at {x}')
-                user_frequencies.remove(x)
-            elif (x > heighest_plottable):
-                print(f'Not enough data to plot at {x}Hz')
-                user_frequencies.remove(x)
-
-
-
-
         def plot_frequencies(target_frequency, can_label, _color):
             def frequency_check(target_frequency):
                 data_for_frequency = spectrum[int(ratio * target_frequency)]
-
-                data_in_db_fun = 10 * np.log10(data_for_frequency)
-
+                data_in_db_fun = 10 * np.log10(data_for_frequency)      #Converts the data into DB
                 idx_last_pos = 0
+
                 for x in range(len(data_in_db_fun)):
-                    if(data_in_db_fun[x] > 0):
+                    if(data_in_db_fun[x] > 0):              #Finds the indedx of the last positive data point
                         idx_last_pos = x
-                pos_data_in_db = data_in_db_fun[:idx_last_pos+1]
+
+                pos_data_in_db = data_in_db_fun[:idx_last_pos+1]        #returns data from the start to the last positive data point
                 return pos_data_in_db, idx_last_pos
 
             data_in_db,last_pos = frequency_check(target_frequency)
 
-
-            plt.figure(2)
-
+            #Plotting Data
+            plt.figure(1)
             plt.plot(t[:last_pos+1], data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
-
-
-
             plt.xlabel('Time (s)')
-
             plt.ylabel('Power (db)')
-
-            #plt.title(f'{target_frequency}Hz')
 
             index_of_max = np.argmax(data_in_db)
             value_of_max = data_in_db[index_of_max]
@@ -210,25 +192,18 @@ class Controller:
 
         plt.grid()
         plt.legend()
-        plt.show()
-
-        for x in range(len(user_frequencies)):
-            if(x == len(user_frequencies)-1):
-                plot_frequencies(user_frequencies[x], True, colors[x])
-            else:
-                plot_frequencies(user_frequencies[x], False, colors[x])
-
-        plt.grid()
-        plt.legend()
-        plt.show()
+        plt.title(f'Decible Vs Time of default frequencies to last audiable second')
+        plt.show(block=True)
+        print(self._channels)
 
 
 
 def main():
     C = Controller()
-    C.LoadFile("Sample5.wav")
-    #C.ShowWav(0)
-    C.Frequency([1000, 2000, 50000])
+    C.LoadFile("Sample6.wav")
+    C.ShowWav(0)
+    C.Frequency([1000, 2000, 3000])
+
 
 
 main()
