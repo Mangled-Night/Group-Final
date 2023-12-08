@@ -62,7 +62,7 @@ class Controller:
             plt.ylabel("Amplitude")
             plt.show()
 
-    def Frequency(self, u_frequencies):
+    def Frequency(self):
         if(self._channels == 1):
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data, Fs=self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
             cbar1 = plt.colorbar(im1)
@@ -89,10 +89,10 @@ class Controller:
 
             plt.show()
 
-        self.RT60(freqs1, spectrum1, t1, u_frequencies)
+        self.RT60(freqs1, spectrum1, t1)
 
 
-    def RT60(self, freqs, spectrum, t, user_frequencies):
+    def RT60(self, freqs, spectrum, t):
         ratio = spectrum.shape[0] / freqs.max()     #Ratio to convert between desired frequency and index for frequency
         def HeighestFrequency():
             _max = len(freqs)
@@ -197,12 +197,16 @@ class Controller:
         print(self._channels)
 
 
+        plot_frequencies(default_frequencies[0], True, colors[0])
+        plt.grid()
+        plt.legend()
+        plt.show(block=True)
 
 def main():
     C = Controller()
     C.LoadFile("Sample6.wav")
     C.ShowWav(0)
-    C.Frequency([1000, 2000, 3000])
+    C.Frequency()
 
 
 
