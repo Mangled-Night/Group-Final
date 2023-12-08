@@ -5,7 +5,7 @@ from pydub import AudioSegment
 import taglib
 import math
 
-class Controller:
+class Model:
     _file = None
     _channels = None
     _samplerate = None
@@ -203,10 +203,10 @@ class Controller:
         plt.show(block=True)
 
 def main():
-    C = Controller()
-    C.LoadFile("Sample6.wav")
-    C.ShowWav(0)
-    C.Frequency()
+    M = Model()
+    M.LoadFile("PolyHallClap_10mM.WAV")
+    M.ShowWav(0)
+    M.Frequency()
 
 
 
