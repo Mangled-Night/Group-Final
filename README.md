@@ -1,7 +1,1 @@
-# Group-Final
-
-#test line k
-
-#Also test line
-
-#Hello World
+This Python program measures and analyzes reverberation time (RT60) in enclosed spaces. The accompanying graphical user interface (GUI) streamlines importing, cleaning, visualizing, analyzing, and modeling data related to reverberation times. The project utilizes Pandas, SciPy, Matplotlib, Numpy, or LibROSA for scientific computations.
