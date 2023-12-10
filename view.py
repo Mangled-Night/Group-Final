@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,  NavigationToolbar2Tk
 
 
 def open_file():
@@ -8,6 +10,31 @@ def open_file():
     _file.set(filename)
     _status_msg.set("Loaded file")
     pass
+
+
+def plot():
+    # the figure that will contain the plot
+    fig = Figure(
+        figsize=(7.77, 3.8), dpi=100)
+
+    # list of squares
+    y = [i ** 2 for i in range(101)]
+
+    # adding the subplot
+    plot1 = fig.add_subplot(111)
+
+    # plotting the graph
+    plot1.plot(y)
+
+    # creating the Tkinter canvas
+    # containing the Matplotlib figure
+    canvas = FigureCanvasTkAgg(
+        fig, master=_plot_frame)
+    canvas.draw()
+
+    # placing the canvas on the Tkinter window
+    canvas.get_tk_widget().grid(
+        row=2, column=0)
 
 
 _root = Tk()  # instantiate instance of Tk class
@@ -39,7 +66,7 @@ _file_button = ttk.Button(
 _file_button.grid(row=0, column=1, padx=15, sticky='W E')
 
 _file_button = ttk.Button(
-    _file_frame, text="Analyze Audio")
+    _file_frame, text="Analyze Audio", command=plot)
 _file_button.grid(row=1, column=1, padx=15, sticky='W E')
 
 _data_frame = ttk.LabelFrame(
@@ -79,6 +106,10 @@ _data_label_len = ttk.Label(
     _data_frame, textvariable=_data_len)
 _data_label_len.grid(row=2, column=2, sticky=("E", "W"))
 # </editor-fold> #
+
+_plot_frame = ttk.LabelFrame(
+    _mainframe, text="Plot", padding="5 1 0 5")
+_plot_frame.grid(row=2, column=0, sticky=("E", "W"))
 
 _status_frame = ttk.Frame(
     _root, relief='sunken', padding='2 2 2 2')
