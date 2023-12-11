@@ -8,8 +8,8 @@ class AudioController:
     def load_file(self, u_file):
         self._model.LoadFile(u_file)
 
-    def show_wav(self):
-        self._model.ShowWav()
+    def show_wav(self,start, end):
+        self._model.ShowWav(start,end)
 
     def frequency(self,s_freqs=None):
         self._model.Frequency(s_freqs)
