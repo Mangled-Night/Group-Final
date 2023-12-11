@@ -76,7 +76,7 @@ class Model:
             plt.legend()
             return fig
 
-    def Frequency(self, s_freqs=None):
+    def Frequency(self, s_freqs):
         if(self._channels == 1):
             s1 = plt.figure(2)
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data, Fs=self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
@@ -84,9 +84,8 @@ class Model:
             plt.ylabel('Frequency (Hz)')
             cbar1.set_label('Intensity (dB)')
             plt.title("Single Channel")
-            plt.show()
             f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
-            return s1, f1
+            return [s1, f1]
 
         else:
             s1 = plt.figure(2)
@@ -108,7 +107,7 @@ class Model:
             #plt.show()
             f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
             f2 = self.RT60(freqs2, spectrum2, t2, 4, s_freqs, 2)
-            return s1, f1, f2
+            return [s1, f1, f2]
 
 
 
@@ -207,11 +206,11 @@ class Model:
                 plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo')
 
 
-            rt20 = (t_arry[index_of_max_less_5] - t_arry[index_of_max_less_25])
+            rt20 = np.abs( (t_arry[index_of_max_less_25] - t_arry[index_of_max_less_5]) )
 
-            rt60 = 3 * rt20
+            rt60 = np.round(3 * rt20, 2)
 
-            plots_data.append( (rt60, np.round(t[last_pos] - t[first_abv_5], 2) ) )
+            plots_data.append( (rt60[0], round(t[last_pos] - t[first_abv_5], 2) ) )
 
         default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
         colors = ["Red", "Blue", "Black"]
@@ -232,14 +231,13 @@ class Model:
         plt.grid()
         plt.legend()
 
-        return (plt.figure(fig) , plots_data, heightest_frequency)
+        return (plt.figure(fig) , plots_data, int(heightest_frequency))
 
 
 def main():
     M = Model()
     M.LoadFile("AulaMagnaClap.wav")
     M.ShowWav(0)
-    s1, f1, f2 = M.Frequency(1)
-    plt.show()
-
+    output = M.Frequency(1)
+    print(output)
 main()
