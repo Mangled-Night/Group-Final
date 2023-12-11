@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile as sio
 from pydub import AudioSegment
 import taglib
-import math
 
 class Model:
     _file = None
@@ -11,8 +10,6 @@ class Model:
     _samplerate = None
     _data = None
     _length = None
-    _fData1 = None
-    _fData2 = None
 
     def LoadFile(self, uFile):
         parsed_file = uFile.split(".")
@@ -52,7 +49,7 @@ class Model:
         d_end = int(self._samplerate * end)
 
         if(self._channels == 1):
-            # Displays the Data
+            #Makes the plot and returns it
             fig = plt.figure(1)
             time = np.linspace(start, end, (d_end - d_start))
             plt.plot(time, self._data[d_start:d_end], label="Single channel")
@@ -62,7 +59,7 @@ class Model:
             return fig
 
         else:
-            #Displays the Data
+            #Makes the plot and returns it
             fig = plt.figure(1)
             time = np.linspace(start, end , (d_end - d_start))
             plt.subplot(211)
@@ -77,7 +74,7 @@ class Model:
             return fig
 
     def Frequency(self, s_freqs):
-        if(self._channels == 1):
+        if(self._channels == 1):             #Makes the plot and returns it
             s1 = plt.figure(2)
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data, Fs=self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
             cbar1 = plt.colorbar(im1)
@@ -87,7 +84,7 @@ class Model:
             f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
             return [s1, f1]
 
-        else:
+        else:             #Makes the plot and returns it
             s1 = plt.figure(2)
             a1 = plt.subplot(211)
             a1.set_title("Left Channel")
@@ -104,7 +101,6 @@ class Model:
             plt.ylabel('Frequency (Hz)')
             cbar2.set_label('Intensity (dB)')
 
-            #plt.show()
             f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
             f2 = self.RT60(freqs2, spectrum2, t2, 4, s_freqs, 2)
             return [s1, f1, f2]
