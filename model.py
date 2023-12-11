@@ -163,9 +163,12 @@ class Model:
 
             #Plotting Data
             plt.figure(fig)
-            plt.plot(t[first_abv_5 : last_pos+1], data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
+            t_arry = t[first_abv_5: last_pos + 1]
+            plt.plot(t_arry, data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
             plt.xlabel('Time (s)')
             plt.ylabel('Power (db)')
+
+
 
             index_of_max = np.argmax(data_in_db)
             value_of_max = data_in_db[index_of_max]
@@ -190,21 +193,21 @@ class Model:
             index_of_max_less_5 = np.where(data_in_db == value_of_max_less_5)
 
             if(can_label):
-                plt.plot(t[index_of_max] + t[first_abv_5] , data_in_db[index_of_max], 'go', label="Max")
-                plt.plot(t[index_of_max_less_25] + t[first_abv_5] , data_in_db[index_of_max_less_25], 'ro', label='Max-25DB')
-                plt.plot(t[index_of_max_less_5] + t[first_abv_5], data_in_db[index_of_max_less_5], 'yo', label='Max-5DB')
+                plt.plot(t_arry[index_of_max], data_in_db[index_of_max], 'go', label="Max")
+                plt.plot(t_arry[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro', label='Max-25DB')
+                plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo', label='Max-5DB')
             else:
                 #print(data_in_db[index_of_max])
-                plt.plot(t[index_of_max] + t[first_abv_5], data_in_db[index_of_max], 'go')
-                plt.plot(t[index_of_max_less_25] + t[first_abv_5] , data_in_db[index_of_max_less_25], 'ro')
-                plt.plot(t[index_of_max_less_5] + t[first_abv_5] , data_in_db[index_of_max_less_5], 'yo')
+                plt.plot(t_arry[index_of_max], data_in_db[index_of_max], 'go')
+                plt.plot(t_arry[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro')
+                plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo')
 
 
-            rt20 = (t[index_of_max_less_5] - t[index_of_max_less_25])
+            rt20 = (t_arry[index_of_max_less_5] - t_arry[index_of_max_less_25])
 
             rt60 = 3 * rt20
 
-            plots_data.append( (rt60, np.round(t[last_pos] - t[0], 2) ) )
+            plots_data.append( (rt60, np.round(t[last_pos] - t[first_abv_5], 2) ) )
 
         default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
         colors = ["Red", "Blue", "Black"]
