@@ -32,7 +32,10 @@ class Model:
         self._length = self._data.shape[0] / self._samplerate
 
     def ReturnStats(self):
-        return self._length, self._samplerate
+        if(self._channels == 1):
+            return self._length, self._samplerate, np.max(self._data)
+        else:
+            return self._length, self._samplerate, np.max(self._data[:,0]) , np.max(self._data[:,1])
 
     def ClearMeta(self, file):
         with taglib.File(file, save_on_exit=True) as audio:
