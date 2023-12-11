@@ -14,8 +14,9 @@ class AudioController:
     def frequency(self,s_freqs=None):
         self._model.Frequency(s_freqs)
 
-    def rt60(self, freqs, spectrum, t, user_frequencies):
-        self._model.rt60(freqs, spectrum, t, user_frequencies)
+    def returnStats(self):
+        self.returnStats()
+
 
 
 
