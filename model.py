@@ -126,7 +126,7 @@ class Model:
                     if (_data[y] > 0):              #Checks if any of the coverted DB is positive, if so finds find the last positive index
                         idx_last_pos = y
                     if (_data[y] > 5 and (not (Found))):
-                        idx_first_abv_5 = y
+                        idx_first_abv_5 = y                 #Checks for the first value above 5 DB to clear out unwanted data
                         Found = True
 
                 if(idx_first_abv_5 == None):
@@ -213,18 +213,22 @@ class Model:
             plots_data.append( (rt60[0], round(t[last_pos] - t[first_abv_5], 2) ) )
 
         default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
+            #Low Mid and High Frequencies
+
         colors = ["Red", "Blue", "Black"]
         plots_data = []
 
         if(s_freq == None):
+            #If no spesific frequency, merge all 3
             for x in range(len(default_frequencies)):
                 if (x == len(default_frequencies) - 1):
                     plot_frequencies(default_frequencies[x], True, colors[x])
-                else:
+                else:       #To provent muntiple lables/legends, only adds a lable on the last iteration
                     plot_frequencies(default_frequencies[x], False, colors[x])
                 plt.title(f'Decible Vs Time of default frequencies to last audiable second'
                           f' of channel {chan}')
         else:
+            # Plots a low, mid, or high frequency
             plot_frequencies(default_frequencies[s_freq], True, colors[0])
             plt.title(f'Decible Vs Time of {default_frequencies[s_freq]}Hz to last audiable second'
                       f' of channel {chan}')
@@ -232,12 +236,3 @@ class Model:
         plt.legend()
 
         return (plt.figure(fig) , plots_data, int(heightest_frequency))
-
-
-def main():
-    M = Model()
-    M.LoadFile("AulaMagnaClap.wav")
-    M.ShowWav(0)
-    output = M.Frequency(1)
-    print(output)
-main()
