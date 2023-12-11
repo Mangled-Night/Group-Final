@@ -212,6 +212,5 @@ def main():
     M.LoadFile("Sample6.wav")
     M.ShowWav(0)
     s1, f1, f2 = M.Frequency()
-    plt.show(block=True)
 
 main()
