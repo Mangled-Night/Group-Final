@@ -196,7 +196,6 @@ class Model:
                 plt.plot(t_arry[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro', label='Max-25DB')
                 plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo', label='Max-5DB')
             else:
-                #print(data_in_db[index_of_max])
                 plt.plot(t_arry[index_of_max], data_in_db[index_of_max], 'go')
                 plt.plot(t_arry[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro')
                 plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo')
