@@ -1,24 +1,18 @@
 # newController.py
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.io import wavfile as sio
-from scipy.io import wavfile
-from pydub import AudioSegment
 from model import Model
 
 class AudioController:
-    def __init__(self, model):
-        self._model = model()
+    def __init__(self):
+        self._model = Model()
 
     def load_file(self, u_file):
-        self._model.load_file(u_file)
+        self._model.LoadFile(u_file)
 
-    def show_wav(self, start=0, end=0):
-        self._model.show_wav(start, end)
+    def show_wav(self):
+        self._model.ShowWav()
 
-    def frequency(self, u_frequencies):
-        self._model.frequency(u_frequencies)
+    def frequency(self):
+        self._model.Frequency()
 
     def rt60(self, freqs, spectrum, t, user_frequencies):
         self._model.rt60(freqs, spectrum, t, user_frequencies)
