@@ -117,14 +117,22 @@ class Model:
             for x in range(1, _max):
                 _data = 10 * np.log10(spectrum[_max - x])
                 idx_last_pos = 0                    #Starts at the heighest frequency and converts it into DB
+                idx_first_abv_5 = None
+                Found = False
                 for y in range(len(_data)):
                     if (_data[y] > 0):              #Checks if any of the coverted DB is positive, if so finds find the last positive index
                         idx_last_pos = y
+                    if (_data[y] > 5 and (not (Found))):
+                        idx_first_abv_5 = y
+                        Found = True
 
-                if (len(_data[:idx_last_pos + 1]) > 1 and heighest_freq == None):
+                if(idx_first_abv_5 == None):
+                    continue
+
+                if (len(_data[idx_first_abv_5 : idx_last_pos + 1]) > 1 and heighest_freq == None):
                     heighest_freq = (_max - x) / ratio                              #Heighest Frequency has at least one positive data point
 
-                if (len(_data[:idx_last_pos + 1]) >= 11):
+                if (len(_data[idx_first_abv_5 : idx_last_pos + 1]) >= 11):
                     heighest_plottable_freq = (_max - x) / ratio                    #Heightest plottable has at least 10 data points
                     break
 
@@ -132,30 +140,36 @@ class Model:
 
         heightest_frequency , heighest_plottable = HeighestFrequency()
 
-
         def plot_frequencies(target_frequency, can_label, _color):
             def frequency_check(target_frequency):
                 data_for_frequency = spectrum[int(ratio * target_frequency)]
                 data_in_db_fun = 10 * np.log10(data_for_frequency)      #Converts the data into DB
                 idx_last_pos = 0
+                idx_first_abv_5 = None
+                Found = False
 
                 for x in range(len(data_in_db_fun)):
                     if(data_in_db_fun[x] > 0):              #Finds the indedx of the last positive data point
                         idx_last_pos = x
+                    if(data_in_db_fun[x] > 5 and not(Found)):
+                        idx_first_abv_5 = x
+                        Found = True
 
-                pos_data_in_db = data_in_db_fun[:idx_last_pos+1]        #returns data from the start to the last positive data point
-                return pos_data_in_db, idx_last_pos
 
-            data_in_db,last_pos = frequency_check(target_frequency)
+                pos_data_in_db = data_in_db_fun[idx_first_abv_5 : idx_last_pos+1]        #returns data from the start to the last positive data point
+                return pos_data_in_db, idx_last_pos, idx_first_abv_5
+
+            data_in_db, last_pos, first_abv_5 = frequency_check(target_frequency)
 
             #Plotting Data
             plt.figure(fig)
-            plt.plot(t[:last_pos+1], data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
+            plt.plot(t[first_abv_5 : last_pos+1], data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
             plt.xlabel('Time (s)')
             plt.ylabel('Power (db)')
 
             index_of_max = np.argmax(data_in_db)
             value_of_max = data_in_db[index_of_max]
+
 
             sliced_array = data_in_db[index_of_max:]
             value_of_max_less_5 = value_of_max - 5
@@ -176,13 +190,14 @@ class Model:
             index_of_max_less_5 = np.where(data_in_db == value_of_max_less_5)
 
             if(can_label):
-                plt.plot(t[index_of_max], data_in_db[index_of_max], 'go', label="Max")
-                plt.plot(t[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro', label='Max-25DB')
-                plt.plot(t[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo', label='Max-5DB')
+                plt.plot(t[index_of_max] + t[first_abv_5] , data_in_db[index_of_max], 'go', label="Max")
+                plt.plot(t[index_of_max_less_25] + t[first_abv_5] , data_in_db[index_of_max_less_25], 'ro', label='Max-25DB')
+                plt.plot(t[index_of_max_less_5] + t[first_abv_5], data_in_db[index_of_max_less_5], 'yo', label='Max-5DB')
             else:
-                plt.plot(t[index_of_max], data_in_db[index_of_max], 'go')
-                plt.plot(t[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro')
-                plt.plot(t[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo')
+                #print(data_in_db[index_of_max])
+                plt.plot(t[index_of_max] + t[first_abv_5], data_in_db[index_of_max], 'go')
+                plt.plot(t[index_of_max_less_25] + t[first_abv_5] , data_in_db[index_of_max_less_25], 'ro')
+                plt.plot(t[index_of_max_less_5] + t[first_abv_5] , data_in_db[index_of_max_less_5], 'yo')
 
 
             rt20 = (t[index_of_max_less_5] - t[index_of_max_less_25])
@@ -209,8 +224,9 @@ class Model:
 
 def main():
     M = Model()
-    M.LoadFile("Sample6.wav")
+    M.LoadFile("AulaMagnaClap.wav")
     M.ShowWav(0)
     s1, f1, f2 = M.Frequency()
+    plt.show()
 
 main()
