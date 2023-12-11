@@ -11,7 +11,8 @@ class Model:
     _samplerate = None
     _data = None
     _length = None
-    _fignumber = 0
+    _fData1 = None
+    _fData2 = None
 
     def LoadFile(self, uFile):
         parsed_file = uFile.split(".")
@@ -75,7 +76,7 @@ class Model:
             plt.legend()
             return fig
 
-    def Frequency(self):
+    def Frequency(self, s_freqs=None):
         if(self._channels == 1):
             s1 = plt.figure(2)
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data, Fs=self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
@@ -84,7 +85,7 @@ class Model:
             cbar1.set_label('Intensity (dB)')
             plt.title("Single Channel")
             plt.show()
-            f1 = self.RT60(freqs1, spectrum1, t1, 3)
+            f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
             return s1, f1
 
         else:
@@ -105,13 +106,13 @@ class Model:
             cbar2.set_label('Intensity (dB)')
 
             #plt.show()
-            f1 = self.RT60(freqs1, spectrum1, t1, 3)
-            f2 = self.RT60(freqs2, spectrum2, t2, 4)
+            f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
+            f2 = self.RT60(freqs2, spectrum2, t2, 4, s_freqs, 2)
             return s1, f1, f2
 
 
 
-    def RT60(self, freqs, spectrum, t, fig):
+    def RT60(self, freqs, spectrum, t, fig, s_freq, chan):
         ratio = spectrum.shape[0] / freqs.max()     #Ratio to convert between desired frequency and index for frequency
         def HeighestFrequency():
             _max = len(freqs)
@@ -216,15 +217,21 @@ class Model:
         colors = ["Red", "Blue", "Black"]
         plots_data = []
 
-        for x in range(len(default_frequencies)):
-            if (x == len(default_frequencies) - 1):
-                plot_frequencies(default_frequencies[x], True, colors[x])
-            else:
-                plot_frequencies(default_frequencies[x], False, colors[x])
-
+        if(s_freq == None):
+            for x in range(len(default_frequencies)):
+                if (x == len(default_frequencies) - 1):
+                    plot_frequencies(default_frequencies[x], True, colors[x])
+                else:
+                    plot_frequencies(default_frequencies[x], False, colors[x])
+                plt.title(f'Decible Vs Time of default frequencies to last audiable second'
+                          f' of channel {chan}')
+        else:
+            plot_frequencies(default_frequencies[s_freq], True, colors[0])
+            plt.title(f'Decible Vs Time of {default_frequencies[s_freq]}Hz to last audiable second'
+                      f' of channel {chan}')
         plt.grid()
         plt.legend()
-        plt.title(f'Decible Vs Time of default frequencies to last audiable second')
+
         return (plt.figure(fig) , plots_data, heightest_frequency)
 
 
@@ -232,7 +239,7 @@ def main():
     M = Model()
     M.LoadFile("AulaMagnaClap.wav")
     M.ShowWav(0)
-    s1, f1, f2 = M.Frequency()
+    s1, f1, f2 = M.Frequency(1)
     plt.show()
 
 main()
