@@ -2,39 +2,45 @@ from tkinter import *
 from tkinter import ttk, filedialog
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,  NavigationToolbar2Tk
+from model import Model
+
+model = Model()
 
 
 def open_file():
     filename = filedialog.askopenfilename(
         filetypes=(("Wav Files", "*.wav"), ("Mp3 Files", "*.mp3"), ("Aac Files", "*.aac")))
+    model.LoadFile(filename)
     _file.set(filename)
     _status_msg.set("Loaded file")
     pass
 
 
-def plot():
-    # the figure that will contain the plot
-    fig = Figure(
+def plot(start=0.0, end=0.0):
+    '''    fig = Figure(
         figsize=(7.77, 3.8), dpi=100)
 
-    # list of squares
     y = [i ** 2 for i in range(101)]
 
-    # adding the subplot
     plot1 = fig.add_subplot(111)
 
-    # plotting the graph
-    plot1.plot(y)
+    plot1.plot(y)'''
 
-    # creating the Tkinter canvas
-    # containing the Matplotlib figure
+    if start is None:
+        start = 0
+    if end is None or end <= start:
+        end = 0
+
+    fig = model.ShowWav(start, end)
+    fig.set_dpi(100)
+    fig.set_size_inches(7.77, 3.85)
+
     canvas = FigureCanvasTkAgg(
         fig, master=_plot_frame)
     canvas.draw()
 
-    # placing the canvas on the Tkinter window
     canvas.get_tk_widget().grid(
-        row=2, column=0)
+        row=2, column=0, pady=0)
 
 
 _root = Tk()  # instantiate instance of Tk class
@@ -66,7 +72,8 @@ _file_button = ttk.Button(
 _file_button.grid(row=0, column=1, padx=15, sticky='W E')
 
 _file_button = ttk.Button(
-    _file_frame, text="Analyze Audio", command=plot)
+    _file_frame, text="Analyze Audio", command=lambda:
+    plot(float(_data_time_entry1.get()), float(_data_time_entry2.get())))
 _file_button.grid(row=1, column=1, padx=15, sticky='W E')
 
 _data_frame = ttk.LabelFrame(
