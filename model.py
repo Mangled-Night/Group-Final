@@ -11,6 +11,7 @@ class Model:
     _samplerate = None
     _data = None
     _length = None
+    _fignumber = 0
 
     def LoadFile(self, uFile):
         parsed_file = uFile.split(".")
@@ -30,6 +31,9 @@ class Model:
         self._channels = len(self._data.shape)
         self._length = self._data.shape[0] / self._samplerate
 
+    def ReturnStats(self):
+        return self._length, self._samplerate
+
     def ClearMeta(self, file):
         with taglib.File(file, save_on_exit=True) as audio:
             audio.tags.clear()  #Removes Metadata
@@ -45,33 +49,43 @@ class Model:
 
         if(self._channels == 1):
             # Displays the Data
+            fig = plt.figure(1)
             time = np.linspace(start, end, (d_end - d_start))
             plt.plot(time, self._data[d_start:d_end], label="Single channel")
             plt.legend()
             plt.xlabel("Time [s]")
             plt.ylabel("Amplitude")
-            plt.show()
+            return fig
 
         else:
             #Displays the Data
+            fig = plt.figure(1)
             time = np.linspace(start, end , (d_end - d_start))
-            plt.plot(time, self._data[d_start:d_end][:, 0], label="Left channel")
-            plt.plot(time, self._data[d_start:d_end][:, 1], label="Right channel")
-            plt.legend()
-            plt.xlabel("Time [s]")
+            plt.subplot(211)
+            plt.plot(time, self._data[d_start:d_end][:, 0], label="Left channel", color='Red')
             plt.ylabel("Amplitude")
-            plt.show()
+            plt.legend()
+            plt.subplot(212)
+            plt.ylabel("Amplitude")
+            plt.plot(time, self._data[d_start:d_end][:, 1], label="Right channel", color='Black')
+            plt.xlabel('Time [s]')
+            plt.legend()
+            return fig
 
     def Frequency(self):
         if(self._channels == 1):
+            s1 = plt.figure(2)
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data, Fs=self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
             cbar1 = plt.colorbar(im1)
             plt.ylabel('Frequency (Hz)')
             cbar1.set_label('Intensity (dB)')
             plt.title("Single Channel")
             plt.show()
+            f1 = self.RT60(freqs1, spectrum1, t1, 3)
+            return s1, f1
 
         else:
+            s1 = plt.figure(2)
             a1 = plt.subplot(211)
             a1.set_title("Left Channel")
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data[:, 0], Fs= self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
@@ -87,12 +101,14 @@ class Model:
             plt.ylabel('Frequency (Hz)')
             cbar2.set_label('Intensity (dB)')
 
-            plt.show()
+            #plt.show()
+            f1 = self.RT60(freqs1, spectrum1, t1, 3)
+            f2 = self.RT60(freqs2, spectrum2, t2, 4)
+            return s1, f1, f2
 
-        self.RT60(freqs1, spectrum1, t1)
 
 
-    def RT60(self, freqs, spectrum, t):
+    def RT60(self, freqs, spectrum, t, fig):
         ratio = spectrum.shape[0] / freqs.max()     #Ratio to convert between desired frequency and index for frequency
         def HeighestFrequency():
             _max = len(freqs)
@@ -116,10 +132,6 @@ class Model:
 
         heightest_frequency , heighest_plottable = HeighestFrequency()
 
-        print(f'Heighest audiable frequency is {int(heightest_frequency)}Hz')
-        print(f'Heighest Plottable frequency is {int(heighest_plottable)}')
-
-        default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
 
         def plot_frequencies(target_frequency, can_label, _color):
             def frequency_check(target_frequency):
@@ -137,7 +149,7 @@ class Model:
             data_in_db,last_pos = frequency_check(target_frequency)
 
             #Plotting Data
-            plt.figure(1)
+            plt.figure(fig)
             plt.plot(t[:last_pos+1], data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
             plt.xlabel('Time (s)')
             plt.ylabel('Power (db)')
@@ -177,12 +189,11 @@ class Model:
 
             rt60 = 3 * rt20
 
+            plots_data.append( (rt60, np.round(t[last_pos] - t[0], 2) ) )
 
-            print(f'The RT60 reverb time at freq {int(target_frequency)}Hz is {np.round(abs(rt60), 2)[0]} seconds')
-            print(f'Amount of audiable sound in this frequency is about {np.round(t[last_pos] - t[0], 2)}s')
-
-
+        default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
         colors = ["Red", "Blue", "Black"]
+        plots_data = []
 
         for x in range(len(default_frequencies)):
             if (x == len(default_frequencies) - 1):
@@ -193,21 +204,14 @@ class Model:
         plt.grid()
         plt.legend()
         plt.title(f'Decible Vs Time of default frequencies to last audiable second')
-        plt.show(block=True)
-        print(self._channels)
+        return (plt.figure(fig) , plots_data, heightest_frequency)
 
-
-        plot_frequencies(default_frequencies[0], True, colors[0])
-        plt.grid()
-        plt.legend()
-        plt.show(block=True)
 
 def main():
     M = Model()
-    M.LoadFile("PolyHallClap_10mM.WAV")
+    M.LoadFile("Sample6.wav")
     M.ShowWav(0)
-    M.Frequency()
-
-
+    s1, f1, f2 = M.Frequency()
+    plt.show(block=True)
 
 main()
