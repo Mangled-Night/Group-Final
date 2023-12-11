@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile as sio
 from pydub import AudioSegment
 import taglib
-import math
 
 class Model:
     _file = None
@@ -11,8 +10,6 @@ class Model:
     _samplerate = None
     _data = None
     _length = None
-    _fData1 = None
-    _fData2 = None
 
     def LoadFile(self, uFile):
         parsed_file = uFile.split(".")
@@ -52,7 +49,7 @@ class Model:
         d_end = int(self._samplerate * end)
 
         if(self._channels == 1):
-            # Displays the Data
+            #Makes the plot and returns it
             fig = plt.figure(1)
             time = np.linspace(start, end, (d_end - d_start))
             plt.plot(time, self._data[d_start:d_end], label="Single channel")
@@ -62,7 +59,7 @@ class Model:
             return fig
 
         else:
-            #Displays the Data
+            #Makes the plot and returns it
             fig = plt.figure(1)
             time = np.linspace(start, end , (d_end - d_start))
             plt.subplot(211)
@@ -77,7 +74,7 @@ class Model:
             return fig
 
     def Frequency(self, s_freqs):
-        if(self._channels == 1):
+        if(self._channels == 1):             #Makes the plot and returns it
             s1 = plt.figure(2)
             spectrum1, freqs1, t1, im1 = plt.specgram(self._data, Fs=self._samplerate, NFFT=1024, cmap=plt.get_cmap('autumn'))
             cbar1 = plt.colorbar(im1)
@@ -87,7 +84,7 @@ class Model:
             f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
             return [s1, f1]
 
-        else:
+        else:             #Makes the plot and returns it
             s1 = plt.figure(2)
             a1 = plt.subplot(211)
             a1.set_title("Left Channel")
@@ -104,7 +101,6 @@ class Model:
             plt.ylabel('Frequency (Hz)')
             cbar2.set_label('Intensity (dB)')
 
-            #plt.show()
             f1 = self.RT60(freqs1, spectrum1, t1, 3, s_freqs, 1)
             f2 = self.RT60(freqs2, spectrum2, t2, 4, s_freqs, 2)
             return [s1, f1, f2]
@@ -126,7 +122,7 @@ class Model:
                     if (_data[y] > 0):              #Checks if any of the coverted DB is positive, if so finds find the last positive index
                         idx_last_pos = y
                     if (_data[y] > 5 and (not (Found))):
-                        idx_first_abv_5 = y
+                        idx_first_abv_5 = y                 #Checks for the first value above 5 DB to clear out unwanted data
                         Found = True
 
                 if(idx_first_abv_5 == None):
@@ -200,7 +196,6 @@ class Model:
                 plt.plot(t_arry[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro', label='Max-25DB')
                 plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo', label='Max-5DB')
             else:
-                #print(data_in_db[index_of_max])
                 plt.plot(t_arry[index_of_max], data_in_db[index_of_max], 'go')
                 plt.plot(t_arry[index_of_max_less_25], data_in_db[index_of_max_less_25], 'ro')
                 plt.plot(t_arry[index_of_max_less_5], data_in_db[index_of_max_less_5], 'yo')
@@ -213,18 +208,22 @@ class Model:
             plots_data.append( (rt60[0], round(t[last_pos] - t[first_abv_5], 2) ) )
 
         default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
+            #Low Mid and High Frequencies
+
         colors = ["Red", "Blue", "Black"]
         plots_data = []
 
         if(s_freq == None):
+            #If no spesific frequency, merge all 3
             for x in range(len(default_frequencies)):
                 if (x == len(default_frequencies) - 1):
                     plot_frequencies(default_frequencies[x], True, colors[x])
-                else:
+                else:       #To provent muntiple lables/legends, only adds a lable on the last iteration
                     plot_frequencies(default_frequencies[x], False, colors[x])
                 plt.title(f'Decible Vs Time of default frequencies to last audiable second'
                           f' of channel {chan}')
         else:
+            # Plots a low, mid, or high frequency
             plot_frequencies(default_frequencies[s_freq], True, colors[0])
             plt.title(f'Decible Vs Time of {default_frequencies[s_freq]}Hz to last audiable second'
                       f' of channel {chan}')
@@ -232,12 +231,3 @@ class Model:
         plt.legend()
 
         return (plt.figure(fig) , plots_data, int(heightest_frequency))
-
-
-def main():
-    M = Model()
-    M.LoadFile("AulaMagnaClap.wav")
-    M.ShowWav(0)
-    output = M.Frequency(1)
-    print(output)
-main()
