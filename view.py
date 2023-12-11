@@ -17,21 +17,22 @@ def open_file():
 
 
 def plot(start=0.0, end=0.0):
-    '''    fig = Figure(
-        figsize=(7.77, 3.8), dpi=100)
 
-    y = [i ** 2 for i in range(101)]
-
-    plot1 = fig.add_subplot(111)
-
-    plot1.plot(y)'''
-
-    if start is None:
+    if start is not float or start is not int:
         start = 0
-    if end is None or end <= start:
+    else:
+        start = float(start)
+    if end is not float or end is not int or end <= start:
         end = 0
+    else:
+        start = float(start)
 
     fig = model.ShowWav(start, end)
+    if fig.axes:
+        fig.delaxes(fig.axes[0])
+        fig.delaxes(fig.axes[0])
+    fig = model.ShowWav(start, end)
+
     fig.set_dpi(100)
     fig.set_size_inches(7.77, 3.85)
 
@@ -73,7 +74,7 @@ _file_button.grid(row=0, column=1, padx=15, sticky='W E')
 
 _file_button = ttk.Button(
     _file_frame, text="Analyze Audio", command=lambda:
-    plot(float(_data_time_entry1.get()), float(_data_time_entry2.get())))
+    plot(_data_time_entry1.get(), _data_time_entry2.get()))
 _file_button.grid(row=1, column=1, padx=15, sticky='W E')
 
 _data_frame = ttk.LabelFrame(
@@ -113,6 +114,25 @@ _data_label_len = ttk.Label(
     _data_frame, textvariable=_data_len)
 _data_label_len.grid(row=2, column=2, sticky=("E", "W"))
 # </editor-fold> #
+
+_data_separator1 = ttk.Separator(_data_frame, orient="vertical")
+_data_separator1.grid(row=0, column=3)
+
+_data_button_wav = ttk.Button(
+    _data_frame, text=1)
+_data_button_wav.grid(row=0, column=4)
+_data_button_spec = ttk.Button(
+    _data_frame, text=2)
+_data_button_spec.grid(row=1, column=4)
+_data_button_freq1 = ttk.Button(
+    _data_frame, text=3)
+_data_button_freq1.grid(row=0, column=5)
+_data_button_freq2 = ttk.Button(
+    _data_frame, text=4)
+_data_button_freq2.grid(row=1, column=5)
+_data_button_switch = ttk.Button(
+    _data_frame, text=5)
+_data_button_switch.grid(row=2, column=5)
 
 _plot_frame = ttk.LabelFrame(
     _mainframe, text="Plot", padding="5 1 0 5")
