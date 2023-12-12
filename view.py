@@ -29,16 +29,10 @@ def plot(start=0.0, end=0.0, plt=0):
 
         canvas.get_tk_widget().grid(
             row=2, column=0, pady=0)
+
+        _status_msg.set("Showing: "+_current_plot.get())
     def de(fig):
-        fig = _model.ShowWav()
-        if fig.axes:
-            if len(fig.axes) > 0:
-                fig.delaxes(fig.axes[0])
-                try:
-                    fig.delaxes(fig.axes[0])
-                    fig.delaxes(fig.axes[0])
-                except IndexError:
-                    pass
+        fig.clf()
 
     '''if start is not float or start is not int:
         start = 0
@@ -66,18 +60,62 @@ def plot(start=0.0, end=0.0, plt=0):
             fig = _model.ShowWav(start, end)
             de(fig)
             fig = _model.ShowWav(start, end)
+            _current_plot.set("WaveForm")
             draw(fig)
         case 1:
             fig = _model.Frequency(None)[0]
             de(fig)
             fig = _model.Frequency(None)[0]
+            _current_plot.set("Spectrograph")
             draw(fig)
         case 2:
-            pass
+            fig = _model.Frequency(None)[1][0]
+            de(fig)
+            fig = _model.Frequency(None)[1][0]
+            _current_plot.set("Channel 1 RT60")
+            draw(fig)
         case 3:
-            pass
+            if len(_model.Frequency(None)) == 3:
+                fig = _model.Frequency(None)[2][0]
+                de(fig)
+                fig = _model.Frequency(None)[2][0]
+                _current_plot.set("Channel 2 RT60")
+                draw(fig)
         case 4:
-            pass
+            if _current_plot.get()[0] == "C":
+                _current_channel.set(int(_current_plot.get()[8]))
+                channel = _current_channel.get()
+            elif _current_channel.get() > 0:
+                channel = _current_channel.get()
+            else:
+                _current_channel.set(0)
+                return
+
+            match _current_plot.get()[0]:
+                case "L":
+                    fig = _model.Frequency(1)[channel][0]
+                    de(fig)
+                    fig = _model.Frequency(1)[channel][0]
+                    _current_plot.set("Medium Freq")
+                    draw(fig)
+                case "M":
+                    fig = _model.Frequency(2)[channel][0]
+                    de(fig)
+                    fig = _model.Frequency(2)[channel][0]
+                    _current_plot.set("High Freq")
+                    draw(fig)
+                case "H":
+                    fig = _model.Frequency(0)[channel][0]
+                    de(fig)
+                    fig = _model.Frequency(0)[channel][0]
+                    _current_plot.set("Low Freq")
+                    draw(fig)
+                case _:
+                    fig = _model.Frequency(0)[channel][0]
+                    de(fig)
+                    fig = _model.Frequency(0)[channel][0]
+                    _current_plot.set("Low Freq")
+                    draw(fig)
         case 5:
             pass
     #fig = model.show_wav(start, end)
@@ -124,8 +162,13 @@ _file_button.grid(row=0, column=1, padx=15, sticky='W E')
 
 _file_button2 = ttk.Button(
     _file_frame, text="Analyze Audio", command=lambda:
-    plot(_start_time.get(), _end_time.get()))
+    plot(_start_time.get(), _end_time.get(), 0))
 _file_button2.grid(row=1, column=1, sticky='W E')
+
+_current_plot = StringVar()
+_current_plot.set("None")
+_current_channel = IntVar()
+_current_channel.set(0)
 
 _data_frame = ttk.LabelFrame(
     _mainframe, text="Data", padding="5 1 0 5")
