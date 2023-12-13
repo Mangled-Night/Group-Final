@@ -11,15 +11,15 @@ class AudioController:
 
 
     def show_wav(self,start, end):
-        self._model.ShowWav(start,end)
-        return self._model.ShowWav()
+        x= self._model.ShowWav(start,end)
+        return x
 
     def frequency(self,s_freqs=None):
-        self._model.Frequency(s_freqs)
-        return self._model.Frequency(s_freqs)
+        x= self._model.Frequency(s_freqs)
+        return x
     def returnStats(self):
-        self.returnStats()
-        return self.returnStats()
+        x= self.returnStats()
+        return x
 
 
 
