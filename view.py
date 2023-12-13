@@ -1,19 +1,17 @@
 from tkinter import *
 from tkinter import ttk, filedialog
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg,  NavigationToolbar2Tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from model import Model
 from newController import AudioController
 
-model = AudioController()
+controller = AudioController()
 _model = Model()
 
 
 def open_file():
     filename = filedialog.askopenfilename(
         filetypes=(("Wav Files", "*.wav"), ("Mp3 Files", "*.mp3"), ("Aac Files", "*.aac")))
-    #model.load_file(filename)
-    _model.LoadFile(filename)
+    controller.load_file(filename)
     _file.set(filename)
     _status_msg.set("Loaded file")
 
@@ -35,9 +33,7 @@ def plot(start=0.0, end=0.0, plt=0):
     def de(fig):
         fig.clf()
 
-    #fig = model.show_wav(start, end)
-
-    if start.replace('.', '', 1).isdigit():
+    if start.replace('.', '', 1).isdigit() and float(start) < controller.returnStats()[0]:
         start = float(start)
     else:
         start = 0
@@ -49,28 +45,28 @@ def plot(start=0.0, end=0.0, plt=0):
 
     match plt:
         case 0:
-            fig = _model.ShowWav(start, end)
+            fig = controller.show_wav(start, end)
             de(fig)
-            fig = _model.ShowWav(start, end)
+            fig = controller.show_wav(start, end)
             _current_plot.set("WaveForm")
             draw(fig)
         case 1:
-            fig = _model.Frequency(None)[0]
+            fig = controller.frequency(None)[0]
             de(fig)
-            fig = _model.Frequency(None)[0]
+            fig = controller.frequency(None)[0]
             _current_plot.set("Spectrograph")
             draw(fig)
         case 2:
-            fig = _model.Frequency(None)[1][0]
+            fig = controller.frequency(None)[1][0]
             de(fig)
-            fig = _model.Frequency(None)[1][0]
+            fig = controller.frequency(None)[1][0]
             _current_plot.set("Channel 1 RT60")
             draw(fig)
         case 3:
-            if len(_model.Frequency(None)) == 3:
-                fig = _model.Frequency(None)[2][0]
+            if len(controller.frequency(None)) == 3:
+                fig = controller.frequency(None)[2][0]
                 de(fig)
-                fig = _model.Frequency(None)[2][0]
+                fig = controller.frequency(None)[2][0]
                 _current_plot.set("Channel 2 RT60")
                 draw(fig)
         case 4:
@@ -85,29 +81,42 @@ def plot(start=0.0, end=0.0, plt=0):
 
             match _current_plot.get()[0]:
                 case "L":
-                    fig = _model.Frequency(1)[channel][0]
+                    fig = controller.frequency(1)[channel][0]
                     de(fig)
-                    fig = _model.Frequency(1)[channel][0]
+                    fig = controller.frequency(1)[channel][0]
                     _current_plot.set("Medium Freq")
                     draw(fig)
                 case "M":
-                    fig = _model.Frequency(2)[channel][0]
+                    fig = controller.frequency(2)[channel][0]
                     de(fig)
-                    fig = _model.Frequency(2)[channel][0]
+                    fig = controller.frequency(2)[channel][0]
                     _current_plot.set("High Freq")
                     draw(fig)
                 case "H":
-                    fig = _model.Frequency(0)[channel][0]
+                    fig = controller.frequency(0)[channel][0]
                     de(fig)
-                    fig = _model.Frequency(0)[channel][0]
+                    fig = controller.frequency(0)[channel][0]
                     _current_plot.set("Low Freq")
                     draw(fig)
                 case _:
-                    fig = _model.Frequency(0)[channel][0]
+                    fig = controller.frequency(0)[channel][0]
                     de(fig)
-                    fig = _model.Frequency(0)[channel][0]
+                    fig = controller.frequency(0)[channel][0]
                     _current_plot.set("Low Freq")
                     draw(fig)
+        case 5:
+            fig = controller.show_wav(start, end)
+            de(fig)
+            fig = controller.show_wav(start, end)
+            _current_plot.set("WaveForm")
+            draw(fig)
+
+            _number_length.set(controller.returnStats()[0])
+            _number_amp.set(controller.returnStats()[2])
+            _number_channels.set(controller._model._channels)
+            _data_fq.set("Number of Channels: "+str(_number_channels.get()))
+            _data_amp.set("Peak Amplitude: "+str(_number_amp.get()))
+            _data_len.set("Length (in seconds): "+str(round(_number_length.get(), 3)))
 
 
 _root = Tk()  # instantiate instance of Tk class
@@ -141,13 +150,20 @@ _file_button.grid(row=0, column=1, padx=0, sticky='W E')
 
 _file_button2 = ttk.Button(
     _file_frame, text="Analyze Audio", command=lambda:
-    plot(_start_time.get(), _end_time.get(), 0))
+    plot(_start_time.get(), _end_time.get(), 5))
 _file_button2.grid(row=1, column=1, sticky='W E')
 
 _current_plot = StringVar()
 _current_plot.set("None")
 _current_channel = IntVar()
 _current_channel.set(0)
+
+_number_length = DoubleVar()
+_number_length.set(0)
+_number_amp = DoubleVar()
+_number_amp.set(0)
+_number_channels = IntVar()
+_number_channels.set(0)
 
 _data_frame = ttk.LabelFrame(
     _mainframe, text="Data", padding="5 6 0 13")
@@ -171,19 +187,19 @@ _end_time = _data_time_entry2
 
 # <editor-fold desc="Data Values">
 _data_fq = StringVar()
-_data_fq.set("Average Frequency: 0")
+_data_fq.set("Number of Channels: ")
 _data_label_fq = ttk.Label(
     _data_frame, textvariable=_data_fq)
 _data_label_fq.grid(row=0, column=2, sticky=("E", "W"))
 
 _data_amp = StringVar()
-_data_amp.set("Peak Amplitude: 0")
+_data_amp.set("Peak Amplitude: ")
 _data_label_amp = ttk.Label(
     _data_frame, textvariable=_data_amp)
 _data_label_amp.grid(row=1, column=2, sticky=("E", "W"))
 
 _data_len = StringVar()
-_data_len.set("Length (in seconds): 0")
+_data_len.set("Length (in seconds): ")
 _data_label_len = ttk.Label(
     _data_frame, textvariable=_data_len)
 _data_label_len.grid(row=2, column=2, sticky=("E", "W"))
