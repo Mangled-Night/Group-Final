@@ -131,9 +131,12 @@ class Model:
                 if (len(_data[idx_first_abv_5 : idx_last_pos + 1]) > 1 and heighest_freq == None):
                     heighest_freq = (_max - x) / ratio                              #Heighest Frequency has at least one positive data point
 
-                if (len(_data[idx_first_abv_5 : idx_last_pos + 1]) >= 11):
+                print(len(_data[idx_first_abv_5 : idx_last_pos + 1]))
+                if (len(_data[idx_first_abv_5 : idx_last_pos + 1]) >= 5):
                     heighest_plottable_freq = (_max - x) / ratio                    #Heightest plottable has at least 10 data points
                     break
+
+            print(heighest_freq, heighest_plottable_freq)
 
             return heighest_freq, heighest_plottable_freq
 
@@ -172,11 +175,11 @@ class Model:
             if (len(t_data_in_db) < 10):
                 upper = target_frequency+1500
                 lower = target_frequency-1500
-                for x in range(lower, upper):       #Checks 2000Hz above and below in case default frequenct isn't plottable
+                for x in range(lower, upper):       #Checks 1500Hz above and below in case default frequenct isn't plottable
                     t_data_in_db, t_last_pos, t_first_abv_5 = frequency_check(x)
                     if (t_first_abv_5 == None):
                         continue
-                    if (len(t_data_in_db) >= 11):      #Once found, set new values accordingly
+                    if (len(t_data_in_db) >= 5):      #Once found, set new values accordingly
                         data_in_db = t_data_in_db
                         last_pos = t_last_pos
                         first_abv_5 = t_first_abv_5
