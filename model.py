@@ -141,6 +141,11 @@ class Model:
 
         def plot_frequencies(target_frequency, can_label, _color):
             def frequency_check(target_frequency):
+                if(target_frequency > freqs[len(freqs) - 1]):
+                    target_frequency = freqs[len(freqs) - 1]
+                elif(target_frequency < 0):
+                    target_frequency = 0
+
                 data_for_frequency = spectrum[int(ratio * target_frequency)]
                 data_in_db_fun = 10 * np.log10(data_for_frequency)      #Converts the data into DB
                 idx_last_pos = 0
@@ -156,18 +161,35 @@ class Model:
 
 
                 pos_data_in_db = data_in_db_fun[idx_first_abv_5 : idx_last_pos+1]        #returns data from the start to the last positive data point
+
                 return pos_data_in_db, idx_last_pos, idx_first_abv_5
 
-            data_in_db, last_pos, first_abv_5 = frequency_check(target_frequency)
+            data_in_db = 0
+            last_pos = 0
+            first_abv_5 = 0
 
-            #Plotting Data
+            t_data_in_db, t_last_pos, t_first_abv_5 = frequency_check(target_frequency)
+            if (len(t_data_in_db) < 10):
+                upper = target_frequency+5000
+                lower = target_frequency-5000
+                for x in range(lower, upper):       #Checks 5000Hz above and below in case default frequenct isn't plottable
+                    t_data_in_db, t_last_pos, t_first_abv_5 = frequency_check(x)
+                    if (t_first_abv_5 == None):
+                        continue
+                    if (len(t_data_in_db) >= 11):      #Once found, set new values accordingly
+                        data_in_db = t_data_in_db
+                        last_pos = t_last_pos
+                        first_abv_5 = t_first_abv_5
+                        target_frequency = x
+                        break
+
+
+        #Plotting Data
             plt.figure(fig)
             t_arry = t[first_abv_5: last_pos + 1]
             plt.plot(t_arry, data_in_db, linewidth=1, alpha=.7, color=_color, label=f'{target_frequency}Hz')
             plt.xlabel('Time (s)')
             plt.ylabel('Power (db)')
-
-
 
             index_of_max = np.argmax(data_in_db)
             value_of_max = data_in_db[index_of_max]
@@ -176,11 +198,14 @@ class Model:
             sliced_array = data_in_db[index_of_max:]
             value_of_max_less_5 = value_of_max - 5
 
+
             def find_nearest_value(array, value):
                 array = np.asarray(array)
                 idx = (np.abs(array - value)).argmin()
 
+
                 return array[idx]
+
 
             value_of_max_less_25 = value_of_max - 25
             value_of_max_less_25 = find_nearest_value(sliced_array, value_of_max_less_25)
@@ -205,7 +230,16 @@ class Model:
 
             rt60 = np.round(3 * rt20, 2)
 
-            plots_data.append( (rt60[0], round(t[last_pos] - t[first_abv_5], 2) ) )
+            delata_t = np.round(t[last_pos] - t[first_abv_5], 2)
+
+            plots_data.append( (rt60[0], delata_t) )
+            if(s_freq == None):
+                plt.title(f'Decible Vs Time of default frequencies to last audiable second'
+                          f' of channel {chan}')
+            else:
+                plt.title(f'Decible Vs Time of {target_frequency}Hz to last audiable second'
+                      f' of channel {chan}')
+
 
         default_frequencies = [0, int(heighest_plottable/2), int(heighest_plottable)]
             #Low Mid and High Frequencies
@@ -220,13 +254,11 @@ class Model:
                     plot_frequencies(default_frequencies[x], True, colors[x])
                 else:       #To provent muntiple lables/legends, only adds a lable on the last iteration
                     plot_frequencies(default_frequencies[x], False, colors[x])
-                plt.title(f'Decible Vs Time of default frequencies to last audiable second'
-                          f' of channel {chan}')
+
         else:
             # Plots a low, mid, or high frequency
             plot_frequencies(default_frequencies[s_freq], True, colors[0])
-            plt.title(f'Decible Vs Time of {default_frequencies[s_freq]}Hz to last audiable second'
-                      f' of channel {chan}')
+
         plt.grid()
         plt.legend()
 
