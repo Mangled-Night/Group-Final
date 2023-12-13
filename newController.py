@@ -18,7 +18,7 @@ class AudioController:
         x= self._model.Frequency(s_freqs)
         return x
     def returnStats(self):
-        x= self.returnStats()
+        x= self._model.ReturnStats()
         return x
 
 
