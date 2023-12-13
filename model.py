@@ -170,9 +170,9 @@ class Model:
 
             t_data_in_db, t_last_pos, t_first_abv_5 = frequency_check(target_frequency)
             if (len(t_data_in_db) < 10):
-                upper = target_frequency+1000
-                lower = target_frequency-1000
-                for x in range(lower, upper):       #Checks 1000Hz above and below in case default frequenct isn't plottable
+                upper = target_frequency+1500
+                lower = target_frequency-1500
+                for x in range(lower, upper):       #Checks 2000Hz above and below in case default frequenct isn't plottable
                     t_data_in_db, t_last_pos, t_first_abv_5 = frequency_check(x)
                     if (t_first_abv_5 == None):
                         continue
