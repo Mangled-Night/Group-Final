@@ -182,6 +182,10 @@ class Model:
                         first_abv_5 = t_first_abv_5
                         target_frequency = x
                         break
+            else:
+                data_in_db = t_data_in_db
+                last_pos = t_last_pos
+                first_abv_5 = t_first_abv_5
 
 
         #Plotting Data
@@ -263,3 +267,4 @@ class Model:
         plt.legend()
 
         return (plt.figure(fig) , plots_data, int(heightest_frequency))
+
