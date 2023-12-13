@@ -5,18 +5,21 @@ class AudioController:
     def __init__(self):
         self._model = Model()
 
+
     def load_file(self, u_file):
         self._model.LoadFile(u_file)
 
+
     def show_wav(self,start, end):
-        self._model.ShowWav(start,end)
+        x= self._model.ShowWav(start,end)
+        return x
 
     def frequency(self,s_freqs=None):
-        self._model.Frequency(s_freqs)
-
+        x= self._model.Frequency(s_freqs)
+        return x
     def returnStats(self):
-        self.returnStats()
-
+        x= self._model.ReturnStats()
+        return x
 
 
 
